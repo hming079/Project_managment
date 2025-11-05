@@ -56,3 +56,24 @@ app.get("/api/procedure", async (req, res) => {
         });
     }
 });
+
+// Login
+app.post("/api/auth/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input("email", sql.NVarChar(255), email)
+            .input("password", sql.NVarChar(255), password)
+            .query(`
+                SELECT * FROM [User] WHERE Email = @email AND Password = @password;
+            `);
+        if (result.recordset.length === 0) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
+        return res.status(200).json({ token: "dummy-jwt-token" });
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Login failed" });
+    }
+});

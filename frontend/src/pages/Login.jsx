@@ -22,7 +22,7 @@ export default function Login() {
     try {
       const data = await login({ email, password });
       localStorage.setItem('token', data.token);
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       setError(err?.message || 'Login failed');
     } finally {
