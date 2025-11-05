@@ -270,7 +270,7 @@ GO
 -- ===== 2. DATA MẪU LẦN 2 (MỞ RỘNG) =====
 
 -- 2.1. THÊM NGƯỜI DÙNG (USER) - Thêm 15 user mới
-INSERT INTO [USER] (FirstName, LastName, Email, [Password], PhoneNum, [Role], Status_System)
+INSERT INTO [USER] (ID,FirstName, LastName, Email, [Password], PhoneNum, [Role], Status_System)
 VALUES
 (6, N'Giang', N'Hoàng', N'giang.pm@pm.com', N'pass123', '0911111111', 'PM', 'Active'),
 (7, N'Hải', N'Lý', N'hai.dev@pm.com', N'pass123', '0911222222', 'Participant', 'Active'),
@@ -324,7 +324,7 @@ VALUES
 GO
 
 -- 2.5. TẠO DỰ ÁN (PROJECT)
-INSERT INTO PROJECT ([Name], [Description], StartDate, EndDate, [Status])
+INSERT INTO PROJECT (ID,[Name], [Description], StartDate, EndDate, [Status])
 VALUES
 (3, N'Hệ thống Quản lý Kho (WMS)', N'Phát triển WMS cho kho vận nội bộ', '2026-01-01', '2026-06-01', 'Open'),
 (4, N'Website Tin tức AI', N'Trang web tự động tổng hợp tin tức bằng AI', '2026-02-01', '2026-08-01', 'Open'),
