@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/auth';
-// import './login.css';
 import signInImg from '../assets/sign_in.png';
 
 export default function Login() {
@@ -85,7 +84,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full !bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Login'}

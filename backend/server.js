@@ -13,49 +13,6 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Example
-// website 1 api: procdedure
-app.get("/api/procedure", async (req, res) => {
-    try {
-        const { classId, courseId, semester, year } = req.query; // Extract query parameters
-
-        if (!classId || !courseId || !semester || !year) {
-            return res.status(400).json({
-                success: false,
-                message: "Missing required query parameters",
-            });
-        }
-        
-        const pool = await poolPromise;
-        const result = await pool.request()
-            .input("classId", sql.Char(3), classId)
-            .input("courseId", sql.Char(6), courseId)
-            .input("semester", sql.Char(1), semester)
-            .input("year", sql.Char(2), year)
-            .query(`
-                SELECT * FROM dbo.ClassList(@classId, @courseId, @semester, @year)
-            `);
-
-        console.log(result);
-        if(result.recordset.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No data found for the given parameters",
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            empData: result.recordset,
-        });
-    } catch (err) {
-        console.log("Error: ", err);
-        res.status(500).json({
-            success: false,
-            message: "Error fetching data",
-        });
-    }
-});
 
 // Login
 app.post("/api/auth/login", async (req, res) => {
@@ -75,5 +32,19 @@ app.post("/api/auth/login", async (req, res) => {
     } catch (err) {
         console.log("Error: ", err);
         res.status(400).json({ message: "Login failed" });
+    }
+});
+
+app.get("/project/list", async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .query(`SELECT p.Id, p.Name, u.FullName AS Leader, p.Status, FORMAT(p.DueDate, 'yyyy-MM-dd') AS Due
+                FROM Project p
+                JOIN [User] u ON p.LeaderId = u.Id;`);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to fetch projects" });
     }
 });
