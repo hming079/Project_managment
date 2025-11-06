@@ -39,9 +39,11 @@ app.get("/project/list", async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request()
-            .query(`SELECT p.Id, p.Name, u.FullName AS Leader, p.Status, FORMAT(p.DueDate, 'yyyy-MM-dd') AS Due
+            .query(`SELECT p.Id, p.Name, u.FirstName + ' ' + u.LastName AS Leader, p.Status, FORMAT(p.EndDate, 'yyyy-MM-dd') AS Due
                 FROM Project p
-                JOIN [User] u ON p.LeaderId = u.Id;`);
+                JOIN PROJECT_MEMBER pm ON p.Id = pm.PJ_ID
+                JOIN [User] u ON u.ID = pm.UserID
+                WHERE u.Role = 'PM';`);
         res.status(200).json(result.recordset);
     } catch (err) {
         console.log("Error: ", err);
