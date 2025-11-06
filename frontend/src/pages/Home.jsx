@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { projectList } from '../api/home';
+import { projectList, logOut } from '../api/home';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -96,6 +96,7 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full hover:bg-blue-100">🔔</button>
             <button className="p-2 rounded-full hover:bg-blue-100">👤</button>
+            <button className="p-2 rounded-full hover:bg-blue-100" onClick={logOut}>Log out</button>
           </div>
         </header>
 

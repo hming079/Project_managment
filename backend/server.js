@@ -50,3 +50,7 @@ app.get("/project/list", async (req, res) => {
         res.status(400).json({ message: "Failed to fetch projects" });
     }
 });
+app.post("/auth/logout", (req, res) => {
+    // Here you would normally handle token invalidation or session destruction
+    res.status(200).json({ message: "Logged out successfully" });
+});

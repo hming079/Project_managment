@@ -16,3 +16,9 @@ export async function projectList() {
     due: item.Due ?? item.due ?? '',
   }));
 }
+export async function logOut() {
+  localStorage.removeItem('token');
+  // best-effort notify server if endpoint exists; ignore errors
+  fetch(`${apiUrl}/api/auth/logout`, { method: 'POST' }).catch(() => {});
+  window.location.replace('/login');
+}
