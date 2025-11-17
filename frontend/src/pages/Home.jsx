@@ -1,26 +1,49 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { login } from '../api/home';
+import { projectList, logOut } from '../api/home';
 
 export default function Home() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
-  const [projects] = useState([
-    { id: 'P1', name: 'Project 1', leader: 'Nguyen Van A', status: 'In progress', due: '02/11/2025' },
-    { id: 'P2', name: 'Project 2', leader: 'Nguyen Van B', status: 'In progress', due: '10/11/2025' },
-  ]);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filtered = useMemo(
-    () =>
-      projects.filter(
-        (p) =>
-          p.id.toLowerCase().includes(query.toLowerCase()) ||
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.leader.toLowerCase().includes(query.toLowerCase())
-      ),
-    [projects, query]
-  );
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      try {
+        const data = await projectList();
+        if (mounted) setProjects(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (mounted) setError(err.message || 'Failed to load projects');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) => {
+      const id = p?.id != null ? String(p.id).toLowerCase() : '';
+      const name = p?.name?.toLowerCase() ?? '';
+      const leader = p?.leader?.toLowerCase() ?? '';
+      return id.includes(q) || name.includes(q) || leader.includes(q);
+    });
+  }, [projects, query]);
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-600">Error: {error}</div>;
+  }
   return (
     <div className="min-h-screen flex bg-blue-50 text-slate-800">
       {/* Sidebar */}
@@ -73,6 +96,7 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full hover:bg-blue-100">🔔</button>
             <button className="p-2 rounded-full hover:bg-blue-100">👤</button>
+            <button className="p-2 rounded-full hover:bg-blue-100" onClick={logOut}>Log out</button>
           </div>
         </header>
 
@@ -113,19 +137,21 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody className="bg-blue-100">
-                {filtered.map((p) => (
-                  <tr key={p.id} className="border-t border-slate-300">
-                    <td className="p-6">{p.id}</td>
-                    <td className="p-6">{p.name}</td>
-                    <td className="p-6">{p.leader}</td>
-                    <td className="p-6">{p.status}</td>
-                    <td className="p-6">{p.due}</td>
-                    <td className="p-6">...</td>
-                  </tr>
-                ))}
+                {Array.isArray(filtered) && filtered.length > 0
+                  ? filtered.map((p, i) => (
+                      <tr key={p?.id ?? `project-${i}`} className="border-t border-slate-300">
+                        <td className="p-6">{p?.id ?? '-'}</td>
+                        <td className="p-6">{p?.name ?? '-'}</td>
+                        <td className="p-6">{p?.leader ?? '-'}</td>
+                        <td className="p-6">{p?.status ?? '-'}</td>
+                        <td className="p-6">{p?.due ?? '-'}</td>
+                        <td className="p-6">...</td>
+                      </tr>
+                    ))
+                  : null}
 
                 {filtered.length === 0 && (
-                  <tr>
+                  <tr key="no-projects">
                     <td colSpan={6} className="p-6 text-center text-slate-500">
                       No projects found.
                     </td>

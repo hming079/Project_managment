@@ -39,12 +39,25 @@ app.get("/project/list", async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request()
-            .query(`SELECT p.Id, p.Name, u.FullName AS Leader, p.Status, FORMAT(p.DueDate, 'yyyy-MM-dd') AS Due
+            .query(`SELECT Id, Name, Leader, Status, Due FROM (
+                SELECT p.Id, p.Name,
+                    u.FirstName + ' ' + u.LastName AS Leader,
+                    p.Status,
+                    FORMAT(p.EndDate, 'yyyy-MM-dd') AS Due,
+                    ROW_NUMBER() OVER (PARTITION BY p.Id ORDER BY u.ID) rn
                 FROM Project p
-                JOIN [User] u ON p.LeaderId = u.Id;`);
+                JOIN PROJECT_MEMBER pm ON p.Id = pm.PJ_ID
+                JOIN [User] u ON u.ID = pm.UserID
+                WHERE u.Role = 'PM'
+            ) t
+            WHERE rn = 1;`);
         res.status(200).json(result.recordset);
     } catch (err) {
         console.log("Error: ", err);
         res.status(400).json({ message: "Failed to fetch projects" });
     }
+});
+app.post("/auth/logout", (req, res) => {
+    // Here you would normally handle token invalidation or session destruction
+    res.status(200).json({ message: "Logged out successfully" });
 });
