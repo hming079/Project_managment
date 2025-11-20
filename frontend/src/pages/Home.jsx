@@ -70,9 +70,19 @@ export default function Home() {
           </button>
 
           <div className="mt-6 text-sm text-slate-600 space-y-2 pl-8">
-            <div>Project 1</div>
-            <div>Project 2</div>
-          </div>
+            {Array.isArray(projects) && projects.length > 0 ? (
+              projects.slice(0, 5).map((p) => (
+                <button key={p.id}
+                onClick={() => navigate(`/projects/${p.id}`)}
+                className="w-full text-left px-2 py-1 rounded hover:bg-white/30 transition">
+                  {/* {p.id ?? '-'}{p.name ? ` — ${p.name}` : ''} */}
+                  {"Project " + p.id }
+                </button>
+              ))
+            ) : (
+             <div>No recent projects</div>
+            )}
+         </div>
         </nav>
       </aside>
 
@@ -143,7 +153,18 @@ export default function Home() {
                         <td className="p-3">{p?.id ?? '-'}</td>
                         <td className="p-3">{p?.name ?? '-'}</td>
                         <td className="p-3">{p?.leader ?? '-'}</td>
-                        <td className="p-3">{p?.status ?? '-'}</td>
+                        <td className="p-3">
+                          <span
+                            className={
+                              "inline-block px-2 py-1 rounded text-white text-xs font-semibold " +
+                              ((String(p?.status || "").toLowerCase() === "open" && "bg-green-600") ||
+                                (["close", "closed"].includes(String(p?.status || "").toLowerCase()) && "bg-red-600") ||
+                                "bg-gray-400")
+                            }
+                          >
+                            {p?.status ?? "-"}
+                          </span>
+                        </td>
                         <td className="p-3">{p?.due ?? '-'}</td>
                         <td className="p-3">...</td>
                       </tr>

@@ -15,7 +15,7 @@ export default function App() {
         <Route path="/login" element={<Public><Login /></Public>} />
 
         <Route path="/home" element={<Private><Home /></Private>} />
-        <Route path="/project" element={<Private><Member /></Private>} />
+        <Route path="/projects/:id" element={<Private><Member /></Private>} />
         <Route path="*" element={<Navigate to="/welcome" replace />} /> 
       </Routes>
     </BrowserRouter>
