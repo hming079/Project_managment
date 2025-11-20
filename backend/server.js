@@ -87,3 +87,31 @@ app.post("/api/auth/logout", (req, res) => {
     // Here you would normally handle token invalidation or session destruction
     res.status(200).json({ message: "Logged out successfully" });
 });
+
+app.get("/project/member/:projectId", async (req, res) => {
+    try {
+        const {projectId} = req.params;
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input("projectId", sql.Int, projectId)
+            .query(`SELECT 
+                    u.ID,
+                    u.FirstName + ' ' + u.LastName AS FullName,
+                    u.Email,
+                    u.Role,
+                    COUNT(ta.TaskNo) AS TaskCount
+                    FROM [USER] u
+                    JOIN PROJECT_MEMBER pm
+                    ON u.ID = pm.UserID
+                    AND pm.PJ_ID = @projectId
+                    LEFT JOIN TASK_ASSIGN ta
+                    ON u.ID = ta.UserID
+                    AND ta.PJ_ID = @projectId
+                    GROUP BY
+                    u.ID, u.FirstName, u.LastName, u.Email, u.Role;`);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to fetch members" });
+    }
+});
