@@ -115,3 +115,35 @@ app.get("/project/member/:projectId", async (req, res) => {
         res.status(400).json({ message: "Failed to fetch members" });
     }
 });
+app.delete("/project/member/:projectId/remove/:userId", async (req, res) => {
+    try {
+        const {projectId, userId} = req.params;
+        const pool = await poolPromise;
+        await pool.request()
+            .input("projectId", sql.Int, projectId)
+            .input("userId", sql.Int, userId)
+            .query(`DELETE FROM PROJECT_MEMBER 
+                    WHERE PJ_ID = @projectId AND UserID = @userId;`);
+        res.status(200).json({ message: "Member removed successfully" });
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to remove member" });
+    }
+});
+
+app.get("/project/task/:projectId", async (req, res) => {
+    try {
+        const {projectId} = req.params;
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input("projectId", sql.Int, projectId)
+            .query(`SELECT 
+                    t.No AS TaskId, t.Name, u.FirstName + ' ' + u.LastName as FullName, t.Status, t.DueDate
+                    FROM Task t JOIN TASK_ASSIGN ta ON No = ta.TaskNo JOIN [USER] u ON u.ID = ta.UserID
+                    WHERE t.[PJ_ID] = @projectId;`);
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to fetch tasks" });
+    }
+});

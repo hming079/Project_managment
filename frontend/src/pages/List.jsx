@@ -2,10 +2,10 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import { logOut } from "../api/home";
 import { projectList } from "../api/home";
-import { memberList } from "../api/member";
-export default function Member() {
+import { taskList } from "../api/task";
+export default function List() {
   const navigate = useNavigate();
-  const [members, setMembers] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
@@ -29,16 +29,16 @@ export default function Member() {
     }, []);
   useEffect(() => {
     let mounted = true;
-    async function loadMembers() {
+    async function loadTasks() {
       setLoading(true);
       try {
-                if (!projectId) {
-          if (mounted) setMembers([]);
+        if (!projectId) {
+          if (mounted) setTasks([]);
           return;
         }
-        const data = await memberList(projectId);
+        const data = await taskList(projectId);
         if (mounted) {
-          setMembers(Array.isArray(data) ? data : []);
+          setTasks(Array.isArray(data) ? data : []);
           setError(null);
         }
       } catch (err) {
@@ -47,7 +47,7 @@ export default function Member() {
         if (mounted) setLoading(false);
       }
     }
-    loadMembers();
+    loadTasks();
     return () => {
       mounted = false;
     };
@@ -55,27 +55,13 @@ export default function Member() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        (m.email || "").toLowerCase().includes(q)
+    if (!q) return tasks;
+    return tasks.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        (t.email || "").toLowerCase().includes(q)
     );
-  }, [members, query]);
-
-  function changeRole(id, role) {
-    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, role } : m)));
-  }
-
-  function removeMember(id) {
-    if (!confirm("Remove this member?")) return;
-    setMembers((prev) => prev.filter((m) => m.id !== id));
-  }
-
-  function onAddPeople() {
-    // navigate to add people page or open modal
-    navigate("/project/add-member");
-  }
+  }, [tasks, query]);
 
   return (
     <div className="min-h-screen flex bg-[#dfe8f6] text-[#244a78]">
@@ -155,9 +141,9 @@ export default function Member() {
 
             <div className="flex items-center gap-4">
               <nav className="flex items-center gap-6 text-sm">
-                <button className="px-4 py-1 rounded-full bg-[#3b6aa8] text-white">Member</button>
+                <button className="text-[#244a78]/80" onClick={() => navigate(`/projects/${projectId}`)}>Member</button>
                 <button className="text-[#244a78]/80">Summary</button>
-                <button className="text-[#244a78]/80" onClick={() => navigate(`/projects/${projectId}/list`)}>List</button>
+                <button className="px-4 py-1 rounded-full bg-[#3b6aa8] text-white">List</button>
                 <button className="text-[#244a78]/80">Board</button>
               </nav>
             </div>
@@ -178,10 +164,10 @@ export default function Member() {
 
             <div>
               <button
-                onClick={onAddPeople}
+                // onClick={onAddTask}
                 className="bg-[#4a86d6] text-white px-4 py-2 rounded-md"
               >
-                + Add people
+                + Add Task
               </button>
             </div>
           </div>
@@ -189,10 +175,11 @@ export default function Member() {
 
         {/* table header */}
         <div className="border-t border-b border-[#9fb7df] py-3 mb-4 grid grid-cols-12 gap-4 items-center text-sm">
-          <div className="col-span-4 font-medium">Name</div>
-          <div className="col-span-2 font-medium">Email</div>
-          <div className="col-span-2 font-medium">Task count</div>
-          <div className="col-span-2 font-medium">Role</div>
+          <div className="col-span-2 font-medium">Task ID</div>
+          <div className="col-span-2 font-medium">Name</div>
+          <div className="col-span-2 font-medium">Assignee</div>
+          <div className="col-span-2 font-medium">Status</div>
+          <div className="col-span-2 font-medium">Due date</div>
           <div className="col-span-2 font-medium text-right">Action</div>
         </div>
 
@@ -202,7 +189,7 @@ export default function Member() {
         ) : error ? (
           <div className="text-red-600">Error: {error}</div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-[#244a78]/70">No members found.</div>
+          <div className="py-12 text-center text-[#244a78]/70">No tasks found.</div>
         ) : (
           <div className="space-y-6">
             {filtered.map((m) => (
@@ -210,35 +197,19 @@ export default function Member() {
                 key={m.id}
                 className="grid grid-cols-12 items-center gap-4 border-b border-[#e6eef9] last:border-b-0"
               >
-                <div className="col-span-4 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#244a78] border border-[#9fb7df]">
-                    {/* simple avatar initial */}
-                    <span className="font-semibold">{m.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <div className="font-medium">{m.name}</div>
-                  </div>
+                <div className="col-span-2 flex items-center gap-4">
+                    <div className="font-medium">{m.id}</div>
                 </div>
 
-                <div className="col-span-2 text-sm text-[#244a78]/70">{m.email || "-"}</div>
-                <div className="col-span-2 text-sm text-[#244a78]/70">{m.taskCount ?? "-"}</div>
+                <div className="col-span-2 text-sm text-[#244a78]/70">{m.name || "-"}</div>
+                <div className="col-span-2 text-sm text-[#244a78]/70">{m.assignee ?? "-"}</div>
 
-                <div className="col-span-2">
-                  {m.role || "-"}
-                  {/* <select
-                    value={m.role}
-                    onChange={(e) => changeRole(m.id, e.target.value)}
-                    className="px-3 py-1 rounded bg-white border border-[#c9d9f0]"
-                  >
-                    <option>PM</option>
-                    <option>Participant</option>
-                    <option>Admin</option>
-                  </select> */}
-                </div>
+                <div className="col-span-2 text-sm text-[#244a78]/70">{m.status || "-"}</div>
+                <div className="col-span-2 text-sm text-[#244a78]/70">{m.dueDate || "-"}</div>
 
                 <div className="col-span-2 text-right">
                   <button
-                    onClick={() => removeMember(m.id)}
+                    // onClick={() => removeMember(m.id)}
                     className="text-[#1f497d] hover:underline"
                   >
                     Remove

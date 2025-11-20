@@ -16,3 +16,10 @@ export async function memberList(projectId) {
         role: item.Role ?? item.role ?? '',
     }));
 }
+export async function removeMember(projectId, userId) {
+    const res = await fetch(`${apiUrl}/project/member/${projectId}/remove/${userId}`, { method: 'DELETE' });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to remove member');
+    }
+}
