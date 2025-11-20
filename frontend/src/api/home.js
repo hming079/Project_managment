@@ -1,7 +1,8 @@
 const apiUrl = "http://localhost:5000";
 
 export async function projectList() {
-  const res = await fetch(`${apiUrl}/project/list`, { method: 'GET' });
+  const email = localStorage.getItem('email');
+  const res = await fetch(`${apiUrl}/project/list/${email}`, { method: 'GET' });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || 'Failed to fetch projects');
@@ -18,6 +19,7 @@ export async function projectList() {
 }
 export async function logOut() {
   localStorage.removeItem('token');
+  localStorage.removeItem('email');
   // best-effort notify server if endpoint exists; ignore errors
   fetch(`${apiUrl}/api/auth/logout`, { method: 'POST' }).catch(() => {});
   window.location.replace('/welcome');

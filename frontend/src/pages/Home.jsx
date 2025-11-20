@@ -140,12 +140,12 @@ export default function Home() {
                 {Array.isArray(filtered) && filtered.length > 0
                   ? filtered.map((p, i) => (
                       <tr key={p?.id ?? `project-${i}`} className="border-t border-slate-300">
-                        <td className="p-6">{p?.id ?? '-'}</td>
-                        <td className="p-6">{p?.name ?? '-'}</td>
-                        <td className="p-6">{p?.leader ?? '-'}</td>
-                        <td className="p-6">{p?.status ?? '-'}</td>
-                        <td className="p-6">{p?.due ?? '-'}</td>
-                        <td className="p-6">...</td>
+                        <td className="p-3">{p?.id ?? '-'}</td>
+                        <td className="p-3">{p?.name ?? '-'}</td>
+                        <td className="p-3">{p?.leader ?? '-'}</td>
+                        <td className="p-3">{p?.status ?? '-'}</td>
+                        <td className="p-3">{p?.due ?? '-'}</td>
+                        <td className="p-3">...</td>
                       </tr>
                     ))
                   : null}
