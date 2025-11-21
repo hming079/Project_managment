@@ -137,7 +137,7 @@ export default function List() {
         <section>
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Project 3</h2>
+            <h2 className="text-2xl font-bold">Project {projectId}</h2>
 
             <div className="flex items-center gap-4">
               <nav className="flex items-center gap-6 text-sm">

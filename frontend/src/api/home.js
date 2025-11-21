@@ -24,3 +24,24 @@ export async function logOut() {
   fetch(`${apiUrl}/api/auth/logout`, { method: 'POST' }).catch(() => {});
   window.location.replace('/welcome');
 }
+export async function deleteProject(projectId) {
+  const res = await fetch(`${apiUrl}/project/delete/${projectId}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to delete project');
+  }
+  return true;
+}
+export async function addProject(data) {
+  const email = localStorage.getItem('email');
+  const res = await fetch(`${apiUrl}/project/create/${email}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to create project');
+  }
+  return await res.json();
+}

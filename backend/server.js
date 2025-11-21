@@ -87,6 +87,44 @@ app.post("/api/auth/logout", (req, res) => {
     // Here you would normally handle token invalidation or session destruction
     res.status(200).json({ message: "Logged out successfully" });
 });
+app.delete("/project/delete/:projectId", async (req, res) => {
+    try {
+        const {projectId} = req.params;
+        const pool = await poolPromise;
+        await pool.request()
+            .input("projectId", sql.Int, projectId)
+            .query(`DELETE FROM Project WHERE Id = @projectId;`);
+        res.status(200).json({ message: "Project deleted successfully" });
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to delete project" });
+    }
+});
+app.post("/project/create/:email", async (req, res) => {
+    try {
+        const { id, name, description, leader, status, startDate, dueDate } = req.body;
+        const { email } = req.params;
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input("email", sql.NVarChar(255), email)
+            .input("id", sql.Int, id)
+            .input("name", sql.NVarChar(50), name)
+            .input("description", sql.NVarChar(255), description)
+            .input("leader", sql.NVarChar(50), leader)
+            .input("status", sql.NVarChar(50), status)
+            .input("startDate", sql.Date, startDate)
+            .input("dueDate", sql.Date, dueDate)
+            .query(`INSERT INTO Project (id, Name, Description, StartDate, EndDate, Status)
+                    VALUES (@id, @name, @description, @startDate, @dueDate, @status);
+                    INSERT INTO PROJECT_MEMBER (PJ_ID, UserID)
+                    VALUES (@id, (SELECT ID FROM [USER] WHERE Email = @email));`);
+        const newProjectId = id;
+        res.status(200).json({ id: newProjectId });
+    } catch (err) {
+        console.log("Error: ", err);
+        res.status(400).json({ message: "Failed to create project" });
+    }
+});
 
 app.get("/project/member/:projectId", async (req, res) => {
     try {
